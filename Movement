@@ -1,0 +1,74 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class ControllerMove : MonoBehaviour
+{
+    //Others
+    public CharacterController player;
+
+    //Movement
+    private float movementSpeed = 8f;
+    private float gravity = -9.81f;
+    private Vector3 velocity;
+
+    //Ground
+    public Transform groundcheck;
+    private LayerMask groundmask;
+    private float radius = 0.2f;
+    bool isGrounded;
+
+    //Jump
+    private float jumpSpeed = 50f;
+
+    //Crouch
+    private Transform toCrouch;
+
+
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+        isGrounded = Physics.CheckSphere(groundcheck.position, radius, groundmask);
+        if (isGrounded && velocity.y < 0)
+        {
+            velocity.y = 0f;
+        }
+        velocity.y += gravity * Time.deltaTime * Time.deltaTime * 10f;
+        player.Move(Vector3.up * velocity.y * Time.deltaTime);
+        
+        
+
+        float x = Input.GetAxis("Horizontal");
+        float z = Input.GetAxis("Vertical");
+
+        Vector3 move = (transform.right * x + transform.forward * z); 
+
+        player.Move(move * movementSpeed * Time.deltaTime);
+
+        //*****Jump ******
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            Vector3 jump = new Vector3(transform.position.x * 0, transform.position.y * 2f, transform.position.z * 0);
+            player.Move(jump * jumpSpeed * Time.deltaTime);
+            if (player.transform.position.y > 50f)
+            {
+                player.Move(jump * +gravity * Time.deltaTime);
+            }
+        }
+
+        //*****Crouch*****
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            Vector3 crouch = new Vector3(player.transform.localScale.x * 0f, player.transform.localScale.y, player.transform.localScale.z * 0f);
+            player.Move(crouch * Time.deltaTime);
+        }
+
+    }
+
+}
